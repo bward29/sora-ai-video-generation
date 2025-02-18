@@ -1,9 +1,16 @@
-Run the bottom two programs in your terminal 
+## Installation and Setup
+
+1. Clone this repository
+2. Run the following commands in your terminal:
+```bash
 npm install
 npm start
+```
 
-After, you will have access to 
+## Accessing the Application
 
-Main form: http://localhost:3000
-Admin dashboard: http://localhost:3000/admin
-Raw JSON data: http://localhost:3000/prompts
+Once the server is running, you can access:
+
+- Main Form: [http://localhost:3000](http://localhost:3000)
+- Admin Dashboard: [http://localhost:3000/admin](http://localhost:3000/admin)
+- Raw JSON Data: [http://localhost:3000/prompts](http://localhost:3000/prompts)
