@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SORA AI Video Generator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -48,43 +47,6 @@
     <div id="response"></div>
 
     <script>
-        // Access the shared storage for prompts
-        const STORAGE_KEY = 'soraPrompts';
-
-        // Save a prompt to the shared storage
-        function savePrompt(promptText) {
-            // Get existing prompts
-            let prompts = [];
-            try {
-                const stored = localStorage.getItem(STORAGE_KEY);
-                if (stored) {
-                    prompts = JSON.parse(stored);
-                }
-            } catch (e) {
-                console.error("Error reading prompts:", e);
-                prompts = [];
-            }
-
-            // Add new prompt
-            const newPrompt = {
-                id: prompts.length > 0 ? Math.max(...prompts.map(p => p.id)) + 1 : 1,
-                prompt: promptText,
-                timestamp: new Date().toISOString()
-            };
-
-            prompts.push(newPrompt);
-
-            // Save back to storage
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(prompts));
-            } catch (e) {
-                console.error("Error saving prompts:", e);
-                throw e;
-            }
-
-            return newPrompt;
-        }
-
         // Lightning storm function
         function triggerLightningStorm() {
             // Activate the storm container
@@ -146,38 +108,68 @@
             setTimeout(randomFlash, 300);
         }
 
+        // Function to save a prompt to localStorage
+        function savePrompt(promptText) {
+            let prompts = [];
+            try {
+                const storedPrompts = localStorage.getItem('soraPrompts');
+                if (storedPrompts) {
+                    prompts = JSON.parse(storedPrompts);
+                }
+            } catch (e) {
+                console.error("Error reading prompts:", e);
+            }
+
+            const newPrompt = {
+                id: prompts.length > 0 ? Math.max(...prompts.map(p => p.id)) + 1 : 1,
+                prompt: promptText,
+                timestamp: new Date().toISOString()
+            };
+
+            prompts.push(newPrompt);
+
+            try {
+                localStorage.setItem('soraPrompts', JSON.stringify(prompts));
+                return true;
+            } catch (e) {
+                console.error("Error saving prompt:", e);
+                return false;
+            }
+        }
+
+        // Handle the generate button click
         document.getElementById('generate-btn').addEventListener('click', function () {
             const idea = document.getElementById('video-idea').value;
-            if (idea.trim() !== '') {
-                // Trigger lightning storm effect
-                triggerLightningStorm();
+            const response = document.getElementById('response');
 
-                try {
-                    // Save the prompt
-                    savePrompt(idea);
-
-                    // Show response message after a slight delay
-                    setTimeout(function () {
-                        const response = document.getElementById('response');
-                        response.textContent = "Your video generation request has been submitted!";
-                        response.className = "success";
-                        response.style.display = "block";
-
-                        // Clear the input field
-                        document.getElementById('video-idea').value = '';
-                    }, 1000);
-                } catch (error) {
-                    console.error('Error saving prompt:', error);
-                    const response = document.getElementById('response');
-                    response.textContent = "There was an error submitting your request. Please try again.";
-                    response.className = "error";
-                    response.style.display = "block";
-                }
-            } else {
-                const response = document.getElementById('response');
+            if (idea.trim() === '') {
                 response.textContent = "Please describe your video idea first.";
                 response.className = "error";
                 response.style.display = "block";
+                return;
+            }
+
+            // Trigger the lightning effect
+            triggerLightningStorm();
+
+            // Save the prompt locally
+            if (savePrompt(idea)) {
+                // Show success message after a delay
+                setTimeout(function () {
+                    response.textContent = "Your video generation request has been submitted!";
+                    response.className = "success";
+                    response.style.display = "block";
+
+                    // Clear the input
+                    document.getElementById('video-idea').value = '';
+                }, 1000);
+            } else {
+                // Show error if saving failed
+                setTimeout(function () {
+                    response.textContent = "There was an error submitting your request. Please try again.";
+                    response.className = "error";
+                    response.style.display = "block";
+                }, 1000);
             }
         });
     </script>

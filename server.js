@@ -4,24 +4,28 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const port = 3000;
+
+// Use environment variable for port or default to 3000
+const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
-// File path for storing prompts
+// Serve static files from the root directory
+app.use(express.static(__dirname));
+
+// Store prompts in memory with a backup to a file
 const PROMPTS_FILE = path.join(__dirname, 'prompts.json');
-
-// Initialize prompts from file or with empty array
 let prompts = [];
+
+// Load any existing prompts from file
 try {
     if (fs.existsSync(PROMPTS_FILE)) {
         const data = fs.readFileSync(PROMPTS_FILE, 'utf8');
         prompts = JSON.parse(data);
         console.log(`Loaded ${prompts.length} prompts from storage`);
     } else {
-        // Initialize with empty array if file doesn't exist
+        // Create empty prompts file if it doesn't exist
         fs.writeFileSync(PROMPTS_FILE, JSON.stringify(prompts));
         console.log('Created empty prompts file');
     }
@@ -41,12 +45,12 @@ function savePrompts() {
 
 // Route to serve the frontend
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Route to serve the admin dashboard
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+    res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
 // API endpoint to submit prompts
@@ -63,7 +67,7 @@ app.post('/submit', (req, res) => {
     // Store the prompt with timestamp
     const promptData = {
         prompt,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         id: nextId
     };
 
@@ -84,6 +88,11 @@ app.post('/submit', (req, res) => {
 // API endpoint to get all prompts
 app.get('/prompts', (req, res) => {
     res.json(prompts);
+});
+
+// Handle 404 errors
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Start the server

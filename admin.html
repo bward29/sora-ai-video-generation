@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SORA Admin Dashboard</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -19,115 +18,65 @@
     </div>
 
     <script>
-        const STORAGE_KEY = 'soraPrompts';
-
+        // Function to load prompts from localStorage
         function loadPrompts() {
+            const promptList = document.getElementById('promptList');
+
             try {
-                // Get all prompts from storage
-                const storedData = localStorage.getItem(STORAGE_KEY);
+                const storedPrompts = localStorage.getItem('soraPrompts');
                 let prompts = [];
 
-                if (storedData) {
-                    prompts = JSON.parse(storedData);
+                if (storedPrompts) {
+                    prompts = JSON.parse(storedPrompts);
                 }
-
-                const promptList = document.getElementById('promptList');
 
                 if (prompts.length === 0) {
                     promptList.innerHTML = '<div class="no-prompts">No prompts submitted yet</div>';
                     return;
                 }
 
-                // Sort by newest first
+                // Sort prompts by timestamp (newest first)
                 prompts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-                promptList.innerHTML = prompts.map(prompt => `
-                    <div class="prompt-item">
-                        <div class="prompt-id">#${prompt.id}</div>
-                        <div class="prompt-text">${prompt.prompt}</div>
-                        <div class="prompt-time">${new Date(prompt.timestamp).toLocaleString()}</div>
-                    </div>
-                `).join('');
+                // Create HTML for each prompt
+                let promptsHTML = '';
+                for (const prompt of prompts) {
+                    promptsHTML += `
+                        <div class="prompt-item">
+                            <div class="prompt-id">#${prompt.id}</div>
+                            <div class="prompt-text">${prompt.prompt}</div>
+                            <div class="prompt-time">${new Date(prompt.timestamp).toLocaleString()}</div>
+                        </div>
+                    `;
+                }
+
+                promptList.innerHTML = promptsHTML;
             } catch (error) {
                 console.error('Error loading prompts:', error);
-                document.getElementById('promptList').innerHTML =
-                    '<div class="no-prompts">Error loading prompts. Please try again.</div>';
+                promptList.innerHTML = '<div class="no-prompts">Error loading prompts. Please try again.</div>';
             }
         }
 
-        // Function to add a few example prompts if none exist
-        function addExamplePrompts() {
-            try {
-                const stored = localStorage.getItem(STORAGE_KEY);
-                let prompts = [];
-
-                if (stored) {
-                    prompts = JSON.parse(stored);
-                }
-
-                if (prompts.length === 0) {
-                    // Add some example prompts if none exist
-                    const examples = [
-                        "A serene lake with mountains in the background",
-                        "A futuristic city with flying cars",
-                        "A cat playing with a ball of yarn"
-                    ];
-
-                    let id = 1;
-                    for (const example of examples) {
-                        prompts.push({
-                            id: id++,
-                            prompt: example,
-                            timestamp: new Date(Date.now() - (id * 3600000)).toISOString()
-                        });
-                    }
-
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(prompts));
-                }
-            } catch (e) {
-                console.error("Error adding example prompts:", e);
-            }
-        }
-
-        // Function to clear all prompts (for admin purposes)
-        function clearAllPrompts() {
-            if (confirm('Are you sure you want to delete all prompts? This cannot be undone.')) {
-                localStorage.removeItem(STORAGE_KEY);
+        // Add clear button
+        const refreshButton = document.querySelector('.refresh-button');
+        const clearButton = document.createElement('button');
+        clearButton.textContent = 'Clear All Prompts';
+        clearButton.className = 'refresh-button';
+        clearButton.style.marginLeft = '10px';
+        clearButton.style.backgroundColor = '#f44336';
+        clearButton.onclick = function () {
+            if (confirm('Are you sure you want to clear all prompts? This cannot be undone.')) {
+                localStorage.removeItem('soraPrompts');
                 loadPrompts();
             }
-        }
-
-        // Add buttons
-        document.addEventListener('DOMContentLoaded', function () {
-            const buttonContainer = document.querySelector('.refresh-button').parentElement;
-
-            // Add example button
-            const exampleButton = document.createElement('button');
-            exampleButton.textContent = 'Add Example Prompts';
-            exampleButton.classList.add('refresh-button');
-            exampleButton.style.backgroundColor = '#4CAF50';
-            exampleButton.style.marginLeft = '10px';
-            exampleButton.addEventListener('click', function () {
-                addExamplePrompts();
-                loadPrompts();
-            });
-            buttonContainer.appendChild(exampleButton);
-
-            // Add clear button
-            const clearButton = document.createElement('button');
-            clearButton.textContent = 'Clear All Prompts';
-            clearButton.classList.add('refresh-button');
-            clearButton.style.backgroundColor = '#f44336';
-            clearButton.style.marginLeft = '10px';
-            clearButton.addEventListener('click', clearAllPrompts);
-            buttonContainer.appendChild(clearButton);
-        });
+        };
+        refreshButton.parentNode.appendChild(clearButton);
 
         // Load prompts when page loads
-        loadPrompts();
+        document.addEventListener('DOMContentLoaded', loadPrompts);
 
-        // Refresh prompts every 30 seconds
-        setInterval(loadPrompts, 30000);
+        // Load prompts immediately as well (in case DOMContentLoaded already fired)
+        loadPrompts();
     </script>
 </body>
 
