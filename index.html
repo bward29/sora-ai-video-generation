@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SORA AI Video Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -108,68 +109,60 @@
             setTimeout(randomFlash, 300);
         }
 
-        // Function to save a prompt to localStorage
-        function savePrompt(promptText) {
-            let prompts = [];
-            try {
-                const storedPrompts = localStorage.getItem('soraPrompts');
-                if (storedPrompts) {
-                    prompts = JSON.parse(storedPrompts);
-                }
-            } catch (e) {
-                console.error("Error reading prompts:", e);
-            }
-
-            const newPrompt = {
-                id: prompts.length > 0 ? Math.max(...prompts.map(p => p.id)) + 1 : 1,
-                prompt: promptText,
-                timestamp: new Date().toISOString()
-            };
-
-            prompts.push(newPrompt);
-
-            try {
-                localStorage.setItem('soraPrompts', JSON.stringify(prompts));
-                return true;
-            } catch (e) {
-                console.error("Error saving prompt:", e);
-                return false;
-            }
-        }
-
-        // Handle the generate button click
         document.getElementById('generate-btn').addEventListener('click', function () {
             const idea = document.getElementById('video-idea').value;
-            const response = document.getElementById('response');
+            if (idea.trim() !== '') {
+                // Trigger lightning storm effect
+                triggerLightningStorm();
 
-            if (idea.trim() === '') {
-                response.textContent = "Please describe your video idea first.";
-                response.className = "error";
-                response.style.display = "block";
-                return;
-            }
+                // Store in localStorage for GitHub Pages version
+                try {
+                    let prompts = [];
+                    const storedPrompts = localStorage.getItem('soraPrompts');
+                    if (storedPrompts) {
+                        prompts = JSON.parse(storedPrompts);
+                    }
 
-            // Trigger the lightning effect
-            triggerLightningStorm();
+                    prompts.push({
+                        id: prompts.length + 1,
+                        prompt: idea,
+                        timestamp: new Date()
+                    });
 
-            // Save the prompt locally
-            if (savePrompt(idea)) {
-                // Show success message after a delay
+                    localStorage.setItem('soraPrompts', JSON.stringify(prompts));
+                } catch (e) {
+                    console.error("Error saving to localStorage:", e);
+                }
+
+                // For server version, try to submit to the server
+                $.ajax({
+                    url: '/submit',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ prompt: idea }),
+                    success: function (data) {
+                        console.log('Success:', data);
+                    },
+                    error: function (xhr, status, error) {
+                        console.log('Server not available, using localStorage only');
+                    }
+                });
+
+                // Show success message after a slight delay
                 setTimeout(function () {
+                    const response = document.getElementById('response');
                     response.textContent = "Your video generation request has been submitted!";
                     response.className = "success";
                     response.style.display = "block";
 
-                    // Clear the input
+                    // Clear the input field
                     document.getElementById('video-idea').value = '';
                 }, 1000);
             } else {
-                // Show error if saving failed
-                setTimeout(function () {
-                    response.textContent = "There was an error submitting your request. Please try again.";
-                    response.className = "error";
-                    response.style.display = "block";
-                }, 1000);
+                const response = document.getElementById('response');
+                response.textContent = "Please describe your video idea first.";
+                response.className = "error";
+                response.style.display = "block";
             }
         });
     </script>

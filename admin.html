@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SORA Admin Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -18,65 +19,69 @@
     </div>
 
     <script>
-        // Function to load prompts from localStorage
         function loadPrompts() {
-            const promptList = document.getElementById('promptList');
+            // First try to load from server
+            $.ajax({
+                url: '/prompts',
+                method: 'GET',
+                success: function (prompts) {
+                    displayPrompts(prompts);
+                },
+                error: function (xhr, status, error) {
+                    console.log('Server not available, using localStorage');
+                    // If server fails, try to load from localStorage
+                    loadFromLocalStorage();
+                }
+            });
+        }
 
+        function loadFromLocalStorage() {
             try {
                 const storedPrompts = localStorage.getItem('soraPrompts');
-                let prompts = [];
-
                 if (storedPrompts) {
-                    prompts = JSON.parse(storedPrompts);
+                    const prompts = JSON.parse(storedPrompts);
+                    displayPrompts(prompts);
+                } else {
+                    displayNoPrompts();
                 }
-
-                if (prompts.length === 0) {
-                    promptList.innerHTML = '<div class="no-prompts">No prompts submitted yet</div>';
-                    return;
-                }
-
-                // Sort prompts by timestamp (newest first)
-                prompts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-                // Create HTML for each prompt
-                let promptsHTML = '';
-                for (const prompt of prompts) {
-                    promptsHTML += `
-                        <div class="prompt-item">
-                            <div class="prompt-id">#${prompt.id}</div>
-                            <div class="prompt-text">${prompt.prompt}</div>
-                            <div class="prompt-time">${new Date(prompt.timestamp).toLocaleString()}</div>
-                        </div>
-                    `;
-                }
-
-                promptList.innerHTML = promptsHTML;
-            } catch (error) {
-                console.error('Error loading prompts:', error);
-                promptList.innerHTML = '<div class="no-prompts">Error loading prompts. Please try again.</div>';
+            } catch (e) {
+                console.error("Error loading from localStorage:", e);
+                displayNoPrompts();
             }
         }
 
-        // Add clear button
-        const refreshButton = document.querySelector('.refresh-button');
-        const clearButton = document.createElement('button');
-        clearButton.textContent = 'Clear All Prompts';
-        clearButton.className = 'refresh-button';
-        clearButton.style.marginLeft = '10px';
-        clearButton.style.backgroundColor = '#f44336';
-        clearButton.onclick = function () {
-            if (confirm('Are you sure you want to clear all prompts? This cannot be undone.')) {
-                localStorage.removeItem('soraPrompts');
-                loadPrompts();
+        function displayPrompts(prompts) {
+            const promptList = document.getElementById('promptList');
+
+            if (!prompts || prompts.length === 0) {
+                displayNoPrompts();
+                return;
             }
-        };
-        refreshButton.parentNode.appendChild(clearButton);
+
+            // Sort by newest first
+            prompts.sort(function (a, b) {
+                return new Date(b.timestamp) - new Date(a.timestamp);
+            });
+
+            promptList.innerHTML = prompts.map(prompt => `
+                <div class="prompt-item">
+                    <div class="prompt-id">#${prompt.id}</div>
+                    <div class="prompt-text">${prompt.prompt}</div>
+                    <div class="prompt-time">${new Date(prompt.timestamp).toLocaleString()}</div>
+                </div>
+            `).join('');
+        }
+
+        function displayNoPrompts() {
+            const promptList = document.getElementById('promptList');
+            promptList.innerHTML = '<div class="no-prompts">No prompts submitted yet</div>';
+        }
 
         // Load prompts when page loads
-        document.addEventListener('DOMContentLoaded', loadPrompts);
-
-        // Load prompts immediately as well (in case DOMContentLoaded already fired)
         loadPrompts();
+
+        // Refresh prompts every 30 seconds
+        setInterval(loadPrompts, 30000);
     </script>
 </body>
 
