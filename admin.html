@@ -19,33 +19,109 @@
     </div>
 
     <script>
-        function loadPrompts() {
-            $.ajax({
-                url: '/prompts',
-                method: 'GET',
-                success: function (prompts) {
-                    const promptList = document.getElementById('promptList');
+        const STORAGE_KEY = 'soraPrompts';
 
-                    if (prompts.length === 0) {
-                        promptList.innerHTML = '<div class="no-prompts">No prompts submitted yet</div>';
-                        return;
+        function loadPrompts() {
+            try {
+                // Get all prompts from storage
+                const storedData = localStorage.getItem(STORAGE_KEY);
+                let prompts = [];
+
+                if (storedData) {
+                    prompts = JSON.parse(storedData);
+                }
+
+                const promptList = document.getElementById('promptList');
+
+                if (prompts.length === 0) {
+                    promptList.innerHTML = '<div class="no-prompts">No prompts submitted yet</div>';
+                    return;
+                }
+
+                // Sort by newest first
+                prompts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                promptList.innerHTML = prompts.map(prompt => `
+                    <div class="prompt-item">
+                        <div class="prompt-id">#${prompt.id}</div>
+                        <div class="prompt-text">${prompt.prompt}</div>
+                        <div class="prompt-time">${new Date(prompt.timestamp).toLocaleString()}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading prompts:', error);
+                document.getElementById('promptList').innerHTML =
+                    '<div class="no-prompts">Error loading prompts. Please try again.</div>';
+            }
+        }
+
+        // Function to add a few example prompts if none exist
+        function addExamplePrompts() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                let prompts = [];
+
+                if (stored) {
+                    prompts = JSON.parse(stored);
+                }
+
+                if (prompts.length === 0) {
+                    // Add some example prompts if none exist
+                    const examples = [
+                        "A serene lake with mountains in the background",
+                        "A futuristic city with flying cars",
+                        "A cat playing with a ball of yarn"
+                    ];
+
+                    let id = 1;
+                    for (const example of examples) {
+                        prompts.push({
+                            id: id++,
+                            prompt: example,
+                            timestamp: new Date(Date.now() - (id * 3600000)).toISOString()
+                        });
                     }
 
-                    promptList.innerHTML = prompts.reverse().map(prompt => `
-                        <div class="prompt-item">
-                            <div class="prompt-id">#${prompt.id}</div>
-                            <div class="prompt-text">${prompt.prompt}</div>
-                            <div class="prompt-time">${new Date(prompt.timestamp).toLocaleString()}</div>
-                        </div>
-                    `).join('');
-                },
-                error: function (xhr, status, error) {
-                    const promptList = document.getElementById('promptList');
-                    promptList.innerHTML = '<div class="no-prompts">Error loading prompts. Please try again.</div>';
-                    console.error("Error:", error);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(prompts));
                 }
-            });
+            } catch (e) {
+                console.error("Error adding example prompts:", e);
+            }
         }
+
+        // Function to clear all prompts (for admin purposes)
+        function clearAllPrompts() {
+            if (confirm('Are you sure you want to delete all prompts? This cannot be undone.')) {
+                localStorage.removeItem(STORAGE_KEY);
+                loadPrompts();
+            }
+        }
+
+        // Add buttons
+        document.addEventListener('DOMContentLoaded', function () {
+            const buttonContainer = document.querySelector('.refresh-button').parentElement;
+
+            // Add example button
+            const exampleButton = document.createElement('button');
+            exampleButton.textContent = 'Add Example Prompts';
+            exampleButton.classList.add('refresh-button');
+            exampleButton.style.backgroundColor = '#4CAF50';
+            exampleButton.style.marginLeft = '10px';
+            exampleButton.addEventListener('click', function () {
+                addExamplePrompts();
+                loadPrompts();
+            });
+            buttonContainer.appendChild(exampleButton);
+
+            // Add clear button
+            const clearButton = document.createElement('button');
+            clearButton.textContent = 'Clear All Prompts';
+            clearButton.classList.add('refresh-button');
+            clearButton.style.backgroundColor = '#f44336';
+            clearButton.style.marginLeft = '10px';
+            clearButton.addEventListener('click', clearAllPrompts);
+            buttonContainer.appendChild(clearButton);
+        });
 
         // Load prompts when page loads
         loadPrompts();
