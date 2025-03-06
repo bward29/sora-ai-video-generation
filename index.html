@@ -115,13 +115,36 @@
                 // Trigger lightning storm effect
                 triggerLightningStorm();
 
-                // Show response message after a slight delay
-                setTimeout(function () {
-                    const response = document.getElementById('response');
-                    response.textContent = "Your video generation request has been submitted!";
-                    response.className = "success";
-                    response.style.display = "block";
-                }, 1000);
+                // Submit the prompt to the server
+                fetch('/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: idea }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Success:', data);
+
+                        // Show response message after a slight delay
+                        setTimeout(function () {
+                            const response = document.getElementById('response');
+                            response.textContent = "Your video generation request has been submitted!";
+                            response.className = "success";
+                            response.style.display = "block";
+
+                            // Clear the input field
+                            document.getElementById('video-idea').value = '';
+                        }, 1000);
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        const response = document.getElementById('response');
+                        response.textContent = "There was an error submitting your request. Please try again.";
+                        response.className = "error";
+                        response.style.display = "block";
+                    });
             } else {
                 const response = document.getElementById('response');
                 response.textContent = "Please describe your video idea first.";
