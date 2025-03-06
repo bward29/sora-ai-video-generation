@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SORA Admin Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>SORA Admin Dashboard</h1>
+
+    <button class="refresh-button" onclick="loadPrompts()">Refresh Prompts</button>
+
+    <div class="prompt-list" id="promptList">
+        <div class="no-prompts">Loading prompts...</div>
+    </div>
+
+    <script>
+        function loadPrompts() {
+            $.ajax({
+                url: '/prompts',
+                method: 'GET',
+                success: function (prompts) {
+                    const promptList = document.getElementById('promptList');
+
+                    if (prompts.length === 0) {
+                        promptList.innerHTML = '<div class="no-prompts">No prompts submitted yet</div>';
+                        return;
+                    }
+
+                    promptList.innerHTML = prompts.reverse().map(prompt => `
+                        <div class="prompt-item">
+                            <div class="prompt-id">#${prompt.id}</div>
+                            <div class="prompt-text">${prompt.prompt}</div>
+                            <div class="prompt-time">${new Date(prompt.timestamp).toLocaleString()}</div>
+                        </div>
+                    `).join('');
+                },
+                error: function (xhr, status, error) {
+                    const promptList = document.getElementById('promptList');
+                    promptList.innerHTML = '<div class="no-prompts">Error loading prompts. Please try again.</div>';
+                    console.error("Error:", error);
+                }
+            });
+        }
+
+        // Load prompts when page loads
+        loadPrompts();
+
+        // Refresh prompts every 30 seconds
+        setInterval(loadPrompts, 30000);
+    </script>
+</body>
+
+</html>
