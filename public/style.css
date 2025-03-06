@@ -1,13 +1,13 @@
-:root{
+:root {
     --KSC-blue: #01215e;
     --KSC-yellow: #ecb02f;
     --KSC--darkyellow: #a1710a;
-    --KSC-lightgray:#d9d9d9;
+    --KSC-lightgray: #d9d9d9;
     --KSC-darkgray: #515151;
     --KSC-lightblue: #a0acc3;
     --KSC-darkblue: #01153b;
     --background: #f7f7f7;
-  }
+}
 
 /*--------------------------------
             GENERAL
@@ -89,22 +89,30 @@ h1 {
 
 /*Index*/
 .logo-container {
+    display: flex;
+    justify-content: center;
     margin: 20px 0;
 }
 
+.logo-container2 {
+    margin: 30px 0;
+}
+
 .logo {
-    width: 200px;
-    height: 200px;
-    margin: 0 auto;
+    width: 150px;
+    height: 150px;
+    margin: 0 15px;
     display: block;
     border-radius: 10px;
     object-fit: contain;
+    background-color: white;
 }
 
 .input-container {
     display: flex;
-    flex-direction: row;
-    margin: 30px 0;
+    flex-direction: column;
+    align-items: center;
+    margin: 30px auto;
     max-width: 90%;
 }
 
@@ -114,13 +122,14 @@ input[type="text"] {
     font-size: 16px;
     border-radius: 5px;
     margin-bottom: 20px;
-    margin-right: 20px;
+    text-align: center;
 }
-input:focus
-{
+
+input:focus {
     border: 5px solid var(--KSC-yellow);
     box-shadow: 0 0 5px rgba(236, 176, 47, 0.5);
 }
+
 button {
     height: 3em;
     width: 6em;

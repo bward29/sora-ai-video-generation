@@ -11,50 +11,35 @@
 
 <body>
     <div class="logo-container">
-        <img src="SORA.png" alt="SORA AI Logo" class="logo">
+        <img src="SORA.png" alt="SORA Logo" class="logo">
+        <img src="Kent State Logo.webp" alt="Kent State Logo" class="logo">
     </div>
 
     <h1>What SORA AI Video Would You Like Generated?</h1>
 
     <div class="input-container">
-        <input type="text" id="videoPrompt" placeholder="Describe your video idea...">
-        <button onclick="submitPrompt()">Generate</button>
+        <input type="text" placeholder="Describe your video idea..." id="video-idea">
+        <button id="generate-btn">Generate</button>
     </div>
 
     <div id="response"></div>
 
     <script>
-        function submitPrompt() {
-            const prompt = document.getElementById('videoPrompt').value;
-            const responseDiv = document.getElementById('response');
-
-            if (!prompt) {
-                responseDiv.innerHTML = "Please enter a video description";
-                responseDiv.className = "error";
-                responseDiv.style.display = "block";
-                return;
+        document.getElementById('generate-btn').addEventListener('click', function () {
+            const idea = document.getElementById('video-idea').value;
+            if (idea.trim() !== '') {
+                // Here you would normally send the request to your backend
+                const response = document.getElementById('response');
+                response.textContent = "Your video generation request has been submitted!";
+                response.className = "success";
+                response.style.display = "block";
+            } else {
+                const response = document.getElementById('response');
+                response.textContent = "Please describe your video idea first.";
+                response.className = "error";
+                response.style.display = "block";
             }
-
-            // Send to backend
-            $.ajax({
-                url: '/submit',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ prompt: prompt }),
-                success: function (response) {
-                    responseDiv.innerHTML = "Request submitted successfully!";
-                    responseDiv.className = "success";
-                    responseDiv.style.display = "block";
-                    console.log("Submitted prompt:", prompt);
-                },
-                error: function (xhr, status, error) {
-                    responseDiv.innerHTML = "Error submitting request. Please try again.";
-                    responseDiv.className = "error";
-                    responseDiv.style.display = "block";
-                    console.error("Error:", error);
-                }
-            });
-        }
+        });
     </script>
 </body>
 
