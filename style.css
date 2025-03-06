@@ -163,3 +163,124 @@ button:hover {
     background-color: #f8d7da;
     color: #721c24;
 }
+
+/* Lightning Storm Effect */
+.lightning-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    display: none;
+}
+
+.lightning-bolt {
+    position: absolute;
+    width: 100px;
+    height: 200px;
+    opacity: 0;
+    filter: drop-shadow(0 0 10px rgba(236, 176, 47, 0.8));
+    /* Yellow glow for KSC yellow */
+}
+
+.lightning-1 {
+    top: 5%;
+    left: 20%;
+    transform: rotate(10deg) scale(1.2);
+}
+
+.lightning-2 {
+    top: 10%;
+    right: 25%;
+    transform: rotate(-15deg) scale(0.9);
+}
+
+.lightning-3 {
+    top: 0%;
+    left: 50%;
+    transform: rotate(5deg) scale(1.5);
+}
+
+.lightning-4 {
+    top: 20%;
+    right: 15%;
+    transform: rotate(-5deg) scale(1.1);
+}
+
+.lightning-flash {
+    animation: lightningFlash 2s ease-out;
+}
+
+.storm-active {
+    display: block;
+}
+
+@keyframes lightningFlash {
+    0% {
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    22% {
+        opacity: 0;
+    }
+
+    25% {
+        opacity: 0.8;
+    }
+
+    27% {
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 0.3;
+    }
+
+    32% {
+        opacity: 0;
+    }
+
+    35% {
+        opacity: 0.6;
+    }
+
+    37% {
+        opacity: 0;
+    }
+
+    40% {
+        opacity: 0.2;
+    }
+
+    42% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Storm background overlay */
+.storm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.storm-overlay.active {
+    opacity: 1;
+}

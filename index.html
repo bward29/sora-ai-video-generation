@@ -10,9 +10,32 @@
 </head>
 
 <body>
+    <!-- Storm Effect Elements -->
+    <div class="storm-overlay"></div>
+    <div class="lightning-container">
+        <svg class="lightning-bolt lightning-1" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50,0 L45,40 L60,45 L40,95 L55,100 L20,200 L35,120 L20,115 L40,65 L25,60 Z" fill="#ecb02f" />
+        </svg>
+
+        <svg class="lightning-bolt lightning-2" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M60,0 L55,50 L70,55 L30,120 L45,125 L15,200 L30,140 L15,135 L55,70 L40,65 Z" fill="#ecb02f" />
+        </svg>
+
+        <svg class="lightning-bolt lightning-3" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M45,0 L40,30 L55,35 L20,100 L35,105 L10,200 L75,105 L60,100 L80,55 L65,50 Z" fill="#ecb02f" />
+            <path d="M35,105 L50,130 L40,125 L60,155" stroke="#ecb02f" stroke-width="2" fill="none" />
+        </svg>
+
+        <svg class="lightning-bolt lightning-4" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M55,0 L50,45 L65,50 L25,110 L40,115 L15,200 L35,130 L20,125 L60,65 L45,60 Z" fill="#ecb02f" />
+            <path d="M40,115 L20,150" stroke="#ecb02f" stroke-width="2" fill="none" />
+            <path d="M25,110 L55,130" stroke="#ecb02f" stroke-width="2" fill="none" />
+        </svg>
+    </div>
+
     <div class="logo-container">
         <img src="SORA.png" alt="SORA Logo" class="logo">
-        <img src="Kent State Logo.webp" alt="Kent State Logo" class="logo">
+        <img src="Kent State Logo.webp" alt="SORA Logo" class="logo">
     </div>
 
     <h1>What SORA AI Video Would You Like Generated?</h1>
@@ -25,14 +48,80 @@
     <div id="response"></div>
 
     <script>
+        // Lightning storm function
+        function triggerLightningStorm() {
+            // Activate the storm container
+            const stormContainer = document.querySelector('.lightning-container');
+            stormContainer.classList.add('storm-active');
+
+            // Activate storm overlay
+            const stormOverlay = document.querySelector('.storm-overlay');
+            stormOverlay.classList.add('active');
+
+            // Trigger lightning flashes with random timing
+            const lightnings = document.querySelectorAll('.lightning-bolt');
+
+            // Initial flash for all lightning bolts
+            lightnings.forEach(lightning => {
+                lightning.classList.add('lightning-flash');
+            });
+
+            // Continue random flashes for a few seconds
+            let flashCount = 0;
+            const maxFlashes = 7;
+
+            function randomFlash() {
+                if (flashCount >= maxFlashes) {
+                    // End the storm after maxFlashes
+                    setTimeout(() => {
+                        stormContainer.classList.remove('storm-active');
+                        stormOverlay.classList.remove('active');
+                        lightnings.forEach(lightning => {
+                            lightning.classList.remove('lightning-flash');
+                        });
+                    }, 800);
+                    return;
+                }
+
+                // Select 1-2 random lightning bolts to flash
+                const numBolts = Math.random() > 0.5 ? 2 : 1;
+
+                for (let i = 0; i < numBolts; i++) {
+                    const randomIndex = Math.floor(Math.random() * lightnings.length);
+                    const bolt = lightnings[randomIndex];
+
+                    bolt.classList.remove('lightning-flash');
+
+                    // Trigger reflow to restart animation
+                    void bolt.offsetWidth;
+
+                    bolt.classList.add('lightning-flash');
+                }
+
+                flashCount++;
+
+                // Schedule next flash with random timing
+                const nextFlashTime = 200 + Math.random() * 600;
+                setTimeout(randomFlash, nextFlashTime);
+            }
+
+            // Start random flashes after initial synchronous flash
+            setTimeout(randomFlash, 300);
+        }
+
         document.getElementById('generate-btn').addEventListener('click', function () {
             const idea = document.getElementById('video-idea').value;
             if (idea.trim() !== '') {
-                // Here you would normally send the request to your backend
-                const response = document.getElementById('response');
-                response.textContent = "Your video generation request has been submitted!";
-                response.className = "success";
-                response.style.display = "block";
+                // Trigger lightning storm effect
+                triggerLightningStorm();
+
+                // Show response message after a slight delay
+                setTimeout(function () {
+                    const response = document.getElementById('response');
+                    response.textContent = "Your video generation request has been submitted!";
+                    response.className = "success";
+                    response.style.display = "block";
+                }, 1000);
             } else {
                 const response = document.getElementById('response');
                 response.textContent = "Please describe your video idea first.";
