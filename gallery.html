@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SORA AI Video Gallery</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="gallery.css">
+    <link rel="stylesheet" href="video-detail.css">
+</head>
+
+<body>
+    <div class="logo-container logo-container-gallery">
+        <div class="logo-wrapper">
+            <img src="SORA.png" alt="SORA Logo" class="logo">
+            <img src="Kent State Logo.webp" alt="Kent State Logo" class="logo">
+        </div>
+    </div>
+
+    <div class="video-detail-container">
+        <!-- Video Prompt -->
+        <div class="video-prompt">
+            <h2>A traditional Chinese town at night, featuring multi-tiered buildings with distinctive curved roofs, red
+                lanterns, and people gathered in a courtyard at a temple complex</h2>
+        </div>
+
+        <!-- Main Video Display -->
+        <div class="video-display">
+            <div class="video-frame">
+                <img src="Ancient China.mp4" alt="Generated video">
+                <div class="play-button">▶</div>
+            </div>
+        </div>
+
+        <!-- Controls Section -->
+        <div class="video-controls">
+            <button id="summary-btn" class="control-btn">Summary</button>
+            <div class="controls-spacer"></div>
+            <button id="wordcloud-btn" class="control-btn">Word Cloud</button>
+        </div>
+    </div>
+
+    <!-- Back button to return to main page -->
+    <div class="navigation-controls">
+        <button id="back-btn" onclick="window.location.href='index.html'">
+            <span class="back-arrow">←</span> Back to Generator
+        </button>
+
+        <!-- Video Selection Controls - For navigating between videos -->
+        <div class="video-navigation">
+            <button id="prev-video" class="nav-btn">Previous</button>
+            <span class="video-counter">Video 1 of 3</span>
+            <button id="next-video" class="nav-btn">Next</button>
+        </div>
+    </div>
+
+    <!-- Analysis Panel - Initially hidden, shown when Summary or Word Cloud is clicked -->
+    <div id="analysis-panel" class="analysis-panel">
+        <div class="panel-header">
+            <span id="panel-title">Video Analysis</span>
+            <button id="close-panel" class="close-btn">×</button>
+        </div>
+        <div id="panel-content" class="panel-content">
+            <!-- Content will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <script>
+        // Video data with summaries and word clouds for each video
+        const videoData = [
+            {
+                prompt: "A traditional Chinese town at night, featuring multi-tiered buildings with distinctive curved roofs, red lanterns, and people gathered in a courtyard at a temple complex",
+                image: "Ancient China.mp4",
+                summary: `
+                    <h3>Video Content Summary</h3>
+                    <p>This video showcases an aerial view of an ancient Chinese architectural complex at dusk. The scene features traditional Chinese buildings with their distinctive curved rooftops and multi-tiered structures illuminated in the evening light.</p>
+                    <p>The central focus is a grand, two-story pavilion decorated with vibrant red lanterns that glow warmly against the deepening blue twilight. The pavilion appears to be a central gathering place, with people visible on its open ground floor.</p>
+                    <p>The camera provides a sweeping perspective of the expansive complex, showing numerous buildings arranged in a traditional courtyard layout. Visitors can be seen walking along the stone pathways that connect the various structures, suggesting this is a popular cultural or historical site.</p>
+                    <h4>Visual Elements:</h4>
+                    <ul>
+                        <li>Traditional Chinese architecture with curved tile roofs</li>
+                        <li>Red lanterns illuminating buildings against blue evening sky</li>
+                        <li>Ancient city wall or fortification in the background</li>
+                        <li>Wide pedestrian pathways connecting structures</li>
+                        <li>Multiple pavilions and halls arranged in classical formation</li>
+                        <li>Atmospheric evening lighting enhancing the historical ambiance</li>
+                    </ul>
+                `,
+                wordCloud: `
+                    <div class="word-cloud-container">
+                        <div class="word-cloud-word" style="font-size: 48px; color: #ecb02f;">Temple</div>
+                        <div class="word-cloud-word" style="font-size: 42px; color: #d9d9d9;">Chinese</div>
+                        <div class="word-cloud-word" style="font-size: 38px; color: #a0acc3;">Lanterns</div>
+                        <div class="word-cloud-word" style="font-size: 36px; color: #ecb02f;">Night</div>
+                        <div class="word-cloud-word" style="font-size: 32px; color: #d9d9d9;">Roofs</div>
+                        <div class="word-cloud-word" style="font-size: 28px; color: #a0acc3;">Architecture</div>
+                        <div class="word-cloud-word" style="font-size: 26px; color: #ecb02f;">Pavilion</div>
+                        <div class="word-cloud-word" style="font-size: 24px; color: #d9d9d9;">Traditional</div>
+                        <div class="word-cloud-word" style="font-size: 22px; color: #a0acc3;">Courtyard</div>
+                        <div class="word-cloud-word" style="font-size: 20px; color: #ecb02f;">Ancient</div>
+                        <div class="word-cloud-word" style="font-size: 18px; color: #d9d9d9;">Visitors</div>
+                        <div class="word-cloud-word" style="font-size: 16px; color: #a0acc3;">Illuminated</div>
+                    </div>
+                `
+            },
+            {
+                prompt: "An ancient Egyptian pyramid rises majestically from the desert sands, with small stone structures in the foreground and visitors exploring the archaeological site under the bright sun.",
+                image: "Ancient Egypt.mp4",
+                summary: `
+                    <h3>Video Content Summary</h3>
+                    <p>This video captures the grandeur of an ancient Egyptian pyramid standing tall against the vast desert landscape. The massive limestone structure dominates the scene, with its weathered surfaces telling stories of thousands of years of history.</p>
+                    <p>In the foreground, smaller stone structures and excavated ruins create an archaeological context, showing the complex nature of the site. Visitors can be seen walking around the base of the pyramid and among the ruins, providing a sense of scale that emphasizes the monumental size of the main structure.</p>
+                    <p>The harsh desert sun bathes everything in bright, golden light, creating stark shadows and highlighting the texture of the ancient stonework. The clear blue sky forms a dramatic backdrop, enhancing the timeless quality of this architectural wonder.</p>
+                    <h4>Visual Elements:</h4>
+                    <ul>
+                        <li>Imposing geometric pyramid structure with weathered stone blocks</li>
+                        <li>Surrounding archaeological ruins and smaller structures</li>
+                        <li>Vast desert landscape extending to the horizon</li>
+                        <li>Bright sunlight creating dramatic shadows and highlights</li>
+                        <li>Tourists and archaeologists providing scale reference</li>
+                        <li>Clear blue sky contrasting with the golden sand</li>
+                    </ul>
+                `,
+                wordCloud: `
+                    <div class="word-cloud-container">
+                        <div class="word-cloud-word" style="font-size: 48px; color: #ecb02f;">Pyramid</div>
+                        <div class="word-cloud-word" style="font-size: 42px; color: #d9d9d9;">Desert</div>
+                        <div class="word-cloud-word" style="font-size: 38px; color: #a0acc3;">Egyptian</div>
+                        <div class="word-cloud-word" style="font-size: 36px; color: #ecb02f;">Ancient</div>
+                        <div class="word-cloud-word" style="font-size: 32px; color: #d9d9d9;">Stones</div>
+                        <div class="word-cloud-word" style="font-size: 28px; color: #a0acc3;">Archaeology</div>
+                        <div class="word-cloud-word" style="font-size: 26px; color: #ecb02f;">Sunlight</div>
+                        <div class="word-cloud-word" style="font-size: 24px; color: #d9d9d9;">Visitors</div>
+                        <div class="word-cloud-word" style="font-size: 22px; color: #a0acc3;">Historical</div>
+                        <div class="word-cloud-word" style="font-size: 20px; color: #ecb02f;">Monument</div>
+                        <div class="word-cloud-word" style="font-size: 18px; color: #d9d9d9;">Sand</div>
+                        <div class="word-cloud-word" style="font-size: 16px; color: #a0acc3;">Ruins</div>
+                    </div>
+                `
+            },
+            {
+                prompt: "A reconstructed ancient Greek harbor featuring ornate wooden ships docked at a stone quay, fronting a classical temple with white columns and broad steps, populated by people in historical dress.",
+                image: "Ancient Greece.mp4",
+                summary: `
+                    <h3>Video Content Summary</h3>
+                    <p>This video presents a vibrant reconstruction of an ancient Greek harbor scene, blending historical accuracy with cinematic storytelling. The foreground showcases several ornately decorated wooden ships with distinctive curved hulls and painted designs, moored along a stone quay that extends into a calm, azure Mediterranean sea.</p>
+                    <p>Rising majestically above the harbor is a classical Greek temple complex, its pristine white marble columns gleaming in the Mediterranean sun. The temple features the characteristic pediments, friezes, and broad ascending steps typical of Greek sacred architecture. The scene is brought to life by figures dressed in historically accurate chitons and himations, engaged in various activities from trading goods to religious processions.</p>
+                    <p>The camera work alternates between sweeping panoramic views that establish the relationship between sea, harbor, and temple, and more intimate shots that highlight architectural details and human interactions, creating a comprehensive visualization of daily life in ancient Greece.</p>
+                    <h4>Visual Elements:</h4>
+                    <ul>
+                        <li>Historically accurate trireme and merchant ships with detailed woodwork</li>
+                        <li>Classical Greek temple architecture with Doric/Ionic columns</li>
+                        <li>Stone harbor infrastructure including quays and breakwaters</li>
+                        <li>Mediterranean landscape with olive trees and rocky outcroppings</li>
+                        <li>Figures in period-appropriate clothing engaging in daily activities</li>
+                        <li>Warm, golden lighting characteristic of Mediterranean climate</li>
+                    </ul>
+                `,
+                wordCloud: `
+                    <div class="word-cloud-container">
+                        <div class="word-cloud-word" style="font-size: 48px; color: #ecb02f;">Temple</div>
+                        <div class="word-cloud-word" style="font-size: 42px; color: #d9d9d9;">Greek</div>
+                        <div class="word-cloud-word" style="font-size: 38px; color: #a0acc3;">Harbor</div>
+                        <div class="word-cloud-word" style="font-size: 36px; color: #ecb02f;">Ships</div>
+                        <div class="word-cloud-word" style="font-size: 32px; color: #d9d9d9;">Columns</div>
+                        <div class="word-cloud-word" style="font-size: 28px; color: #a0acc3;">Ancient</div>
+                        <div class="word-cloud-word" style="font-size: 26px; color: #ecb02f;">Classical</div>
+                        <div class="word-cloud-word" style="font-size: 24px; color: #d9d9d9;">Historical</div>
+                        <div class="word-cloud-word" style="font-size: 22px; color: #a0acc3;">Mediterranean</div>
+                        <div class="word-cloud-word" style="font-size: 20px; color: #ecb02f;">Marble</div>
+                        <div class="word-cloud-word" style="font-size: 18px; color: #d9d9d9;">Quay</div>
+                        <div class="word-cloud-word" style="font-size: 16px; color: #a0acc3;">Reconstruction</div>
+                    </div>
+                `
+            }
+        ];
+
+        let currentVideoIndex = 0;
+
+        // Toggle the analysis panel when Summary button is clicked
+        document.getElementById('summary-btn').addEventListener('click', function () {
+            const currentVideo = videoData[currentVideoIndex];
+            showPanel('Summary', currentVideo.summary);
+        });
+
+        // Toggle the analysis panel when Word Cloud button is clicked
+        document.getElementById('wordcloud-btn').addEventListener('click', function () {
+            const currentVideo = videoData[currentVideoIndex];
+            showPanel('Word Cloud', currentVideo.wordCloud);
+        });
+
+        // Helper function to show the panel with specific content
+        function showPanel(title, content) {
+            document.getElementById('panel-title').textContent = title;
+            document.getElementById('panel-content').innerHTML = content;
+            document.getElementById('analysis-panel').classList.add('show');
+        }
+
+        // Close the panel when the close button is clicked
+        document.getElementById('close-panel').addEventListener('click', function () {
+            document.getElementById('analysis-panel').classList.remove('show');
+        });
+
+        // Next button functionality
+        document.getElementById('next-video').addEventListener('click', function () {
+            if (currentVideoIndex < videoData.length - 1) {
+                currentVideoIndex++;
+                updateVideoDisplay();
+            }
+        });
+
+        // Previous button functionality
+        document.getElementById('prev-video').addEventListener('click', function () {
+            if (currentVideoIndex > 0) {
+                currentVideoIndex--;
+                updateVideoDisplay();
+            }
+        });
+
+        // Function to update the video display based on current index
+        function updateVideoDisplay() {
+            const currentVideo = videoData[currentVideoIndex];
+
+            // Update prompt
+            document.querySelector('.video-prompt h2').textContent = currentVideo.prompt;
+
+            // Update video image
+            document.querySelector('.video-frame img').src = currentVideo.image;
+
+            // Update counter
+            document.querySelector('.video-counter').textContent = `Video ${currentVideoIndex + 1} of ${videoData.length}`;
+
+            // Enable/disable navigation buttons
+            document.getElementById('prev-video').disabled = currentVideoIndex === 0;
+            document.getElementById('next-video').disabled = currentVideoIndex === videoData.length - 1;
+        }
+
+        // Initialize with the first video
+        updateVideoDisplay();
+    </script>
+</body>
+
+</html>

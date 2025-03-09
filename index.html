@@ -7,45 +7,99 @@
     <title>SORA AI Video Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="gallery.css">
 </head>
 
 <body>
-    <!-- Storm Effect Elements -->
-    <div class="storm-overlay"></div>
-    <div class="lightning-container">
-        <svg class="lightning-bolt lightning-1" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
-            <path d="M50,0 L45,40 L60,45 L40,95 L55,100 L20,200 L35,120 L20,115 L40,65 L25,60 Z" fill="#ecb02f" />
-        </svg>
+    <!-- Main Content Container -->
+    <div class="main-container">
+        <!-- Left section - Input area -->
+        <div class="input-section">
+            <!-- Storm Effect Elements -->
+            <div class="storm-overlay"></div>
+            <div class="lightning-container">
+                <svg class="lightning-bolt lightning-1" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50,0 L45,40 L60,45 L40,95 L55,100 L20,200 L35,120 L20,115 L40,65 L25,60 Z"
+                        fill="#ecb02f" />
+                </svg>
 
-        <svg class="lightning-bolt lightning-2" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
-            <path d="M60,0 L55,50 L70,55 L30,120 L45,125 L15,200 L30,140 L15,135 L55,70 L40,65 Z" fill="#ecb02f" />
-        </svg>
+                <svg class="lightning-bolt lightning-2" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M60,0 L55,50 L70,55 L30,120 L45,125 L15,200 L30,140 L15,135 L55,70 L40,65 Z"
+                        fill="#ecb02f" />
+                </svg>
 
-        <svg class="lightning-bolt lightning-3" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
-            <path d="M45,0 L40,30 L55,35 L20,100 L35,105 L10,200 L75,105 L60,100 L80,55 L65,50 Z" fill="#ecb02f" />
-            <path d="M35,105 L50,130 L40,125 L60,155" stroke="#ecb02f" stroke-width="2" fill="none" />
-        </svg>
+                <svg class="lightning-bolt lightning-3" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M45,0 L40,30 L55,35 L20,100 L35,105 L10,200 L75,105 L60,100 L80,55 L65,50 Z"
+                        fill="#ecb02f" />
+                    <path d="M35,105 L50,130 L40,125 L60,155" stroke="#ecb02f" stroke-width="2" fill="none" />
+                </svg>
 
-        <svg class="lightning-bolt lightning-4" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
-            <path d="M55,0 L50,45 L65,50 L25,110 L40,115 L15,200 L35,130 L20,125 L60,65 L45,60 Z" fill="#ecb02f" />
-            <path d="M40,115 L20,150" stroke="#ecb02f" stroke-width="2" fill="none" />
-            <path d="M25,110 L55,130" stroke="#ecb02f" stroke-width="2" fill="none" />
-        </svg>
+                <svg class="lightning-bolt lightning-4" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M55,0 L50,45 L65,50 L25,110 L40,115 L15,200 L35,130 L20,125 L60,65 L45,60 Z"
+                        fill="#ecb02f" />
+                    <path d="M40,115 L20,150" stroke="#ecb02f" stroke-width="2" fill="none" />
+                    <path d="M25,110 L55,130" stroke="#ecb02f" stroke-width="2" fill="none" />
+                </svg>
+            </div>
+
+            <div class="logo-container logo-container-main">
+                <div class="logo-wrapper">
+                    <img src="SORA.png" alt="SORA Logo" class="logo">
+                    <img src="Kent State Logo.webp" alt="Kent State Logo" class="logo">
+                </div>
+            </div>
+
+            <h1>What SORA AI Video Would You Like Generated?</h1>
+
+            <div class="input-container">
+                <input type="text" placeholder="Describe your video idea..." id="video-idea">
+                <button id="generate-btn">Generate</button>
+            </div>
+
+            <div id="response"></div>
+        </div>
+
+        <!-- Right section - Gallery -->
+        <div class="gallery-section">
+            <div class="gallery-title">Recently Generated Videos</div>
+            <div class="video-gallery">
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="Ancient China.mp4" alt="Video thumbnail">
+                        <div class="play-icon">▶</div>
+                    </div>
+                    <div class="video-description">
+                        <p class="truncate-text">A traditional Chinese town at night, featuring multi-tiered buildings
+                            with distinctive curved roofs, red lanterns, and
+                            people gathered in a courtyard at a temple complex</p>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="Ancient Egypt.mp4" alt="Video thumbnail">
+                        <div class="play-icon">▶</div>
+                    </div>
+                    <div class="video-description">
+                        <p class="truncate-text">An ancient Egyptian pyramid rises majestically from the desert sands,
+                            with small stone structures in the foreground and
+                            visitors exploring the archaeological site under the bright sun.</p>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="Ancient Greece.mp4" alt="Video thumbnail">
+                        <div class="play-icon">▶</div>
+                    </div>
+                    <div class="video-description">
+                        <p class="truncate-text">A reconstructed ancient Greek harbor featuring ornate wooden ships
+                            docked at a stone quay, fronting a classical temple
+                            with white columns and broad steps, populated by people in historical dress.</p>
+                    </div>
+                </div>
+            </div>
+            <button id="view-all-btn">View All Videos</button>
+        </div>
     </div>
-
-    <div class="logo-container">
-        <img src="SORA.png" alt="SORA Logo" class="logo">
-        <img src="Kent State Logo.webp" alt="Kent State Logo" class="logo">
-    </div>
-
-    <h1>What SORA AI Video Would You Like Generated?</h1>
-
-    <div class="input-container">
-        <input type="text" placeholder="Describe your video idea..." id="video-idea">
-        <button id="generate-btn">Generate</button>
-    </div>
-
-    <div id="response"></div>
 
     <script>
         // Lightning storm function
@@ -164,6 +218,11 @@
                 response.className = "error";
                 response.style.display = "block";
             }
+        });
+
+        // View All Videos button click handler
+        document.getElementById('view-all-btn').addEventListener('click', function () {
+            window.location.href = 'gallery.html';
         });
     </script>
 </body>
