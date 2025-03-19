@@ -8,6 +8,41 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="gallery.css">
+    <style>
+        /* Custom styles for video thumbnails */
+        .video-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+        }
+
+        .video-item {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .video-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        /* Remove play icon */
+        .play-icon {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -63,38 +98,48 @@
         <div class="gallery-section">
             <div class="gallery-title">Recently Generated Videos</div>
             <div class="video-gallery">
-                <div class="video-item">
-                    <div class="video-thumbnail">
-                        <img src="Ancient China.mp4" alt="Video thumbnail">
-                        <div class="play-icon">▶</div>
-                    </div>
-                    <div class="video-description">
-                        <p class="truncate-text">A traditional Chinese town at night, featuring multi-tiered buildings
-                            with distinctive curved roofs, red lanterns, and
-                            people gathered in a courtyard at a temple complex</p>
-                    </div>
+                <!-- Video 1 - Chinese Town -->
+                <div class="video-item" data-video-index="0">
+                    <a href="gallery.html?video=0" class="video-link">
+                        <div class="video-thumbnail">
+                            <img src="Ancient China.mp4" alt="Video thumbnail">
+                        </div>
+                        <div class="video-description">
+                            <p class="truncate-text">A traditional Chinese town at night, featuring multi-tiered
+                                buildings
+                                with distinctive curved roofs, red lanterns, and
+                                people gathered in a courtyard at a temple complex</p>
+                        </div>
+                    </a>
                 </div>
-                <div class="video-item">
-                    <div class="video-thumbnail">
-                        <img src="Ancient Egypt.mp4" alt="Video thumbnail">
-                        <div class="play-icon">▶</div>
-                    </div>
-                    <div class="video-description">
-                        <p class="truncate-text">An ancient Egyptian pyramid rises majestically from the desert sands,
-                            with small stone structures in the foreground and
-                            visitors exploring the archaeological site under the bright sun.</p>
-                    </div>
+
+                <!-- Video 2 - Egyptian Pyramid -->
+                <div class="video-item" data-video-index="1">
+                    <a href="gallery.html?video=1" class="video-link">
+                        <div class="video-thumbnail">
+                            <img src="Ancient Egypt.mp4" alt="Video thumbnail">
+                        </div>
+                        <div class="video-description">
+                            <p class="truncate-text">An ancient Egyptian pyramid rises majestically from the desert
+                                sands,
+                                with small stone structures in the foreground and
+                                visitors exploring the archaeological site under the bright sun.</p>
+                        </div>
+                    </a>
                 </div>
-                <div class="video-item">
-                    <div class="video-thumbnail">
-                        <img src="Ancient Greece.mp4" alt="Video thumbnail">
-                        <div class="play-icon">▶</div>
-                    </div>
-                    <div class="video-description">
-                        <p class="truncate-text">A reconstructed ancient Greek harbor featuring ornate wooden ships
-                            docked at a stone quay, fronting a classical temple
-                            with white columns and broad steps, populated by people in historical dress.</p>
-                    </div>
+
+                <!-- Video 3 - Greek Harbor -->
+                <div class="video-item" data-video-index="2">
+                    <a href="gallery.html?video=2" class="video-link">
+                        <div class="video-thumbnail">
+                            <img src="Ancient Greece.mp4" alt="Video thumbnail">
+                        </div>
+                        <div class="video-description">
+                            <p class="truncate-text">A reconstructed ancient Greek harbor featuring ornate wooden ships
+                                docked at a stone quay, fronting a classical temple
+                                with white columns and broad steps, populated by people in historical dress.</p>
+                        </div>
+                    </a>
                 </div>
             </div>
             <button id="view-all-btn">View All Videos</button>
