@@ -10,15 +10,41 @@
     <link rel="stylesheet" href="gallery.css">
     <link rel="stylesheet" href="video-detail.css">
     <style>
-        /* Additional styles for video player */
+        /* Cross-browser compatible styles */
+        .video-frame {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+
         .video-frame video {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
+            /* Changed from cover for better cross-browser display */
+            display: block;
+            /* Prevent whitespace below video */
+            background: #000;
+            /* Black background */
         }
 
-        /* Hide default controls to use custom ones */
+        /* Hide default controls across browsers */
         .video-frame video::-webkit-media-controls {
+            display: none !important;
+        }
+
+        .video-frame video::-webkit-media-controls-enclosure {
+            display: none !important;
+        }
+
+        .video-frame video::-webkit-media-controls-panel {
+            display: none !important;
+        }
+
+        /* Firefox */
+        .video-frame video::-moz-media-controls {
             display: none !important;
         }
 
@@ -35,6 +61,7 @@
             right: 0;
             opacity: 0;
             transition: opacity 0.3s;
+            z-index: 5;
         }
 
         .video-frame:hover .custom-video-controls {
@@ -49,9 +76,34 @@
         .volume-control input {
             width: 80px;
             margin-left: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 3px;
+            outline: none;
         }
 
-        /* Add play button for initial video display */
+        .volume-control input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            background: #ecb02f;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .volume-control input::-moz-range-thumb {
+            width: 15px;
+            height: 15px;
+            background: #ecb02f;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Big play button for cross-browser compatibility */
         .big-play-button {
             position: absolute;
             top: 50%;
@@ -71,6 +123,8 @@
             border: none;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             transition: transform 0.2s, background 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            /* Remove tap highlight on mobile */
         }
 
         .big-play-button:hover {
@@ -80,6 +134,43 @@
 
         .big-play-button.hidden {
             display: none;
+        }
+
+        /* Control buttons style for all browsers */
+        .control-btn,
+        #mute-btn {
+            border: none;
+            background: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px 10px;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Ensure control buttons work on touch devices */
+        .control-btn:active,
+        #mute-btn:active,
+        .big-play-button:active {
+            opacity: 0.8;
+        }
+
+        /* Improve responsiveness for smaller screens */
+        @media (max-width: 768px) {
+            .big-play-button {
+                width: 60px;
+                height: 60px;
+                font-size: 30px;
+            }
+
+            .custom-video-controls {
+                padding: 8px;
+            }
+
+            .volume-control input {
+                width: 60px;
+            }
         }
     </style>
 </head>
@@ -102,8 +193,8 @@
         <!-- Main Video Display -->
         <div class="video-display">
             <div class="video-frame">
-                <!-- Video with autoplay attribute removed initially -->
-                <video id="main-video" playsinline loop>
+                <!-- Video with cross-browser compatible attributes -->
+                <video id="main-video" playsinline preload="metadata">
                     <source src="Ancient China.mp4" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
@@ -113,9 +204,10 @@
 
                 <!-- Custom video controls -->
                 <div class="custom-video-controls">
-                    <button id="mute-btn">🔊</button>
+                    <button id="mute-btn" aria-label="Mute/Unmute">🔊</button>
                     <div class="volume-control">
-                        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.7">
+                        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.7"
+                            aria-label="Volume">
                     </div>
                 </div>
             </div>
@@ -264,193 +356,232 @@
             }
         ];
 
-        // Function to get URL parameters
-        function getUrlParameter(name) {
-            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-            var results = regex.exec(location.search);
-            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-        }
+        // Wait until the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            // Function to get URL parameters
+            function getUrlParameter(name) {
+                name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+                var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+                var results = regex.exec(location.search);
+                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+            }
 
-        // Set initial video index from URL parameter if available
-        let currentVideoIndex = 0;
-        const videoParam = getUrlParameter('video');
-        if (videoParam !== '' && !isNaN(parseInt(videoParam)) && parseInt(videoParam) >= 0 && parseInt(videoParam) < videoData.length) {
-            currentVideoIndex = parseInt(videoParam);
-        }
+            // Set initial video index from URL parameter if available
+            let currentVideoIndex = 0;
+            const videoParam = getUrlParameter('video');
+            if (videoParam !== '' && !isNaN(parseInt(videoParam)) && parseInt(videoParam) >= 0 && parseInt(videoParam) < videoData.length) {
+                currentVideoIndex = parseInt(videoParam);
+            }
 
-        const videoElement = document.getElementById('main-video');
-        const muteButton = document.getElementById('mute-btn');
-        const volumeSlider = document.getElementById('volume-slider');
-        const bigPlayButton = document.getElementById('big-play-button');
+            const videoElement = document.getElementById('main-video');
+            const muteButton = document.getElementById('mute-btn');
+            const volumeSlider = document.getElementById('volume-slider');
+            const bigPlayButton = document.getElementById('big-play-button');
 
-        // Start video with sound when big play button is clicked
-        bigPlayButton.addEventListener('click', function () {
-            // Set volume before playing
-            videoElement.volume = volumeSlider.value;
-            videoElement.muted = false;
+            // Function to safely play video with error handling
+            function safePlay() {
+                // Set volume before playing
+                videoElement.volume = volumeSlider.value;
+                videoElement.muted = false;
+                muteButton.textContent = "🔊";
 
-            // Play the video
-            videoElement.play()
-                .then(() => {
-                    // Hide the play button once video starts
-                    bigPlayButton.classList.add('hidden');
-                })
-                .catch(error => {
-                    console.error("Error playing video:", error);
-                    // If play fails, keep the button visible
-                });
-        });
+                // Play with promise handling for cross-browser compatibility
+                const playPromise = videoElement.play();
 
-        // Click anywhere on the video frame to play the video
-        document.querySelector('.video-frame').addEventListener('click', function (e) {
-            // Don't trigger if clicking on controls or the big play button
-            if (!e.target.closest('.custom-video-controls') && e.target !== bigPlayButton) {
-                if (videoElement.paused) {
-                    videoElement.play()
+                if (playPromise !== undefined) {
+                    playPromise
                         .then(() => {
+                            // Success - hide play button
                             bigPlayButton.classList.add('hidden');
+                        })
+                        .catch(error => {
+                            // If autoplay is prevented
+                            console.log("Video play was prevented:", error);
+
+                            // Keep play button visible
+                            bigPlayButton.classList.remove('hidden');
+
+                            // On iOS, we need user interaction first
+                            const clickToPlay = function () {
+                                const innerPlayPromise = videoElement.play();
+                                if (innerPlayPromise !== undefined) {
+                                    innerPlayPromise
+                                        .then(() => {
+                                            bigPlayButton.classList.add('hidden');
+                                        })
+                                        .catch(e => {
+                                            console.log("Still can't play:", e);
+                                        });
+                                }
+                                // Remove this temporary handler
+                                document.removeEventListener('touchstart', clickToPlay);
+                                document.removeEventListener('click', clickToPlay);
+                            };
+
+                            // Add temp listeners
+                            document.addEventListener('touchstart', clickToPlay, { once: true });
+                            document.addEventListener('click', clickToPlay, { once: true });
                         });
-                } else {
-                    videoElement.pause();
-                    bigPlayButton.classList.remove('hidden');
                 }
             }
-        });
 
-        // Mute/Unmute functionality
-        muteButton.addEventListener('click', function () {
-            videoElement.muted = !videoElement.muted;
-            muteButton.textContent = videoElement.muted ? "🔇" : "🔊";
+            // Start video with sound when big play button is clicked
+            bigPlayButton.addEventListener('click', function (e) {
+                e.stopPropagation(); // Prevent event bubbling
+                safePlay();
+            });
 
-            // If unmuting, set volume to slider value
-            if (!videoElement.muted) {
-                videoElement.volume = volumeSlider.value;
-            }
-        });
+            // Special handling for touch devices
+            bigPlayButton.addEventListener('touchend', function (e) {
+                e.preventDefault(); // Prevent default touch behavior
+                e.stopPropagation();
+                safePlay();
+            });
 
-        // Volume control
-        volumeSlider.addEventListener('input', function () {
-            videoElement.volume = this.value;
-
-            // If volume is set to 0, show mute icon
-            if (this.value == 0) {
-                muteButton.textContent = "🔇";
-                videoElement.muted = true;
-            } else {
-                muteButton.textContent = "🔊";
-                videoElement.muted = false;
-            }
-        });
-
-        // Toggle the analysis panel when Summary button is clicked
-        document.getElementById('summary-btn').addEventListener('click', function () {
-            const currentVideo = videoData[currentVideoIndex];
-            showPanel('Summary', currentVideo.summary);
-        });
-
-        // Toggle the analysis panel when Word Cloud button is clicked
-        document.getElementById('wordcloud-btn').addEventListener('click', function () {
-            const currentVideo = videoData[currentVideoIndex];
-            showPanel('Word Cloud', currentVideo.wordCloud);
-        });
-
-        // Helper function to show the panel with specific content
-        function showPanel(title, content) {
-            document.getElementById('panel-title').textContent = title;
-            document.getElementById('panel-content').innerHTML = content;
-            document.getElementById('analysis-panel').classList.add('show');
-        }
-
-        // Close the panel when the close button is clicked
-        document.getElementById('close-panel').addEventListener('click', function () {
-            document.getElementById('analysis-panel').classList.remove('show');
-        });
-
-        // Next button functionality
-        document.getElementById('next-video').addEventListener('click', function () {
-            if (currentVideoIndex < videoData.length - 1) {
-                currentVideoIndex++;
-                updateVideoDisplay();
-                // Update URL without reloading the page
-                window.history.replaceState({}, '', `gallery.html?video=${currentVideoIndex}`);
-            }
-        });
-
-        // Previous button functionality
-        document.getElementById('prev-video').addEventListener('click', function () {
-            if (currentVideoIndex > 0) {
-                currentVideoIndex--;
-                updateVideoDisplay();
-                // Update URL without reloading the page
-                window.history.replaceState({}, '', `gallery.html?video=${currentVideoIndex}`);
-            }
-        });
-
-        // Function to update the video display based on current index
-        function updateVideoDisplay() {
-            const currentVideo = videoData[currentVideoIndex];
-
-            // Update prompt
-            document.querySelector('.video-prompt h2').textContent = currentVideo.prompt;
-
-            // Stop current video if playing
-            if (!videoElement.paused) {
-                videoElement.pause();
-            }
-
-            // Update video source
-            videoElement.src = currentVideo.video;
-            videoElement.load(); // Important: reload the video with new source
-
-            // Show the play button for the new video
-            bigPlayButton.classList.remove('hidden');
-
-            // Update counter
-            document.querySelector('.video-counter').textContent = `Video ${currentVideoIndex + 1} of ${videoData.length}`;
-
-            // Enable/disable navigation buttons
-            document.getElementById('prev-video').disabled = currentVideoIndex === 0;
-            document.getElementById('next-video').disabled = currentVideoIndex === videoData.length - 1;
-        }
-
-        // Check if we should auto-start the video (e.g., coming from index page)
-        document.addEventListener('DOMContentLoaded', function () {
-            // If we have a video parameter, it means we're coming from the index page
-            if (videoParam !== '') {
-                // Wait a moment for everything to initialize
-                setTimeout(() => {
-                    // Try to autoplay with a user gesture simulation
-                    const userAction = function () {
-                        bigPlayButton.click();
-                        // Remove this event listener after first use
-                        document.removeEventListener('mousemove', userAction);
-                        document.removeEventListener('scroll', userAction);
-                        document.removeEventListener('keydown', userAction);
-                    };
-
-                    // Add temporary listeners for common user actions
-                    document.addEventListener('mousemove', userAction, { once: true });
-                    document.addEventListener('scroll', userAction, { once: true });
-                    document.addEventListener('keydown', userAction, { once: true });
-
-                    // Also try direct play (might work in some browsers)
-                    // We don't mute here since we want sound
-                    if (!videoElement.paused) {
-                        bigPlayButton.classList.add('hidden');
+            // Click anywhere on the video frame to toggle play/pause
+            document.querySelector('.video-frame').addEventListener('click', function (e) {
+                // Don't trigger if clicking on controls or the big play button
+                if (!e.target.closest('.custom-video-controls') && e.target !== bigPlayButton) {
+                    if (videoElement.paused) {
+                        safePlay();
+                    } else {
+                        videoElement.pause();
+                        bigPlayButton.classList.remove('hidden');
                     }
-                }, 300);
+                }
+            });
+
+            // When video ends, show play button again
+            videoElement.addEventListener('ended', function () {
+                // For non-looping videos, show play button at end
+                if (!videoElement.loop) {
+                    bigPlayButton.classList.remove('hidden');
+                }
+            });
+
+            // Mute/Unmute functionality with better cross-browser support
+            muteButton.addEventListener('click', function (e) {
+                e.stopPropagation(); // Prevent bubbling
+                videoElement.muted = !videoElement.muted;
+                muteButton.textContent = videoElement.muted ? "🔇" : "🔊";
+
+                // If unmuting, set volume to slider value
+                if (!videoElement.muted) {
+                    videoElement.volume = volumeSlider.value;
+                }
+            });
+
+            // Volume control with improved handling
+            volumeSlider.addEventListener('input', function (e) {
+                e.stopPropagation(); // Prevent bubbling
+                videoElement.volume = this.value;
+
+                // If volume is set to 0, show mute icon
+                if (parseFloat(this.value) === 0) {
+                    muteButton.textContent = "🔇";
+                    videoElement.muted = true;
+                } else {
+                    muteButton.textContent = "🔊";
+                    videoElement.muted = false;
+                }
+            });
+
+            // Toggle the analysis panel when Summary button is clicked
+            document.getElementById('summary-btn').addEventListener('click', function () {
+                const currentVideo = videoData[currentVideoIndex];
+                showPanel('Summary', currentVideo.summary);
+            });
+
+            // Toggle the analysis panel when Word Cloud button is clicked
+            document.getElementById('wordcloud-btn').addEventListener('click', function () {
+                const currentVideo = videoData[currentVideoIndex];
+                showPanel('Word Cloud', currentVideo.wordCloud);
+            });
+
+            // Helper function to show the panel with specific content
+            function showPanel(title, content) {
+                document.getElementById('panel-title').textContent = title;
+                document.getElementById('panel-content').innerHTML = content;
+                document.getElementById('analysis-panel').classList.add('show');
             }
+
+            // Close the panel when the close button is clicked
+            document.getElementById('close-panel').addEventListener('click', function () {
+                document.getElementById('analysis-panel').classList.remove('show');
+            });
+
+            // Next button functionality
+            document.getElementById('next-video').addEventListener('click', function () {
+                if (currentVideoIndex < videoData.length - 1) {
+                    currentVideoIndex++;
+                    updateVideoDisplay();
+                    // Update URL without reloading the page
+                    window.history.replaceState({}, '', `gallery.html?video=${currentVideoIndex}`);
+                }
+            });
+
+            // Previous button functionality
+            document.getElementById('prev-video').addEventListener('click', function () {
+                if (currentVideoIndex > 0) {
+                    currentVideoIndex--;
+                    updateVideoDisplay();
+                    // Update URL without reloading the page
+                    window.history.replaceState({}, '', `gallery.html?video=${currentVideoIndex}`);
+                }
+            });
+
+            // Function to update the video display based on current index
+            function updateVideoDisplay() {
+                const currentVideo = videoData[currentVideoIndex];
+
+                // Update prompt
+                document.querySelector('.video-prompt h2').textContent = currentVideo.prompt;
+
+                // Stop current video if playing
+                if (!videoElement.paused) {
+                    videoElement.pause();
+                }
+
+                // Update video source with proper error handling
+                try {
+                    // Update video source
+                    videoElement.src = currentVideo.video;
+
+                    // For Safari compatibility, explicitly call load
+                    videoElement.load();
+                } catch (e) {
+                    console.error("Error loading video:", e);
+                }
+
+                // Show the play button for the new video
+                bigPlayButton.classList.remove('hidden');
+
+                // Update counter
+                document.querySelector('.video-counter').textContent = `Video ${currentVideoIndex + 1} of ${videoData.length}`;
+
+                // Enable/disable navigation buttons
+                document.getElementById('prev-video').disabled = currentVideoIndex === 0;
+                document.getElementById('next-video').disabled = currentVideoIndex === videoData.length - 1;
+            }
+
+            // Set up video loop behavior - make videos loop seamlessly
+            videoElement.addEventListener('timeupdate', function () {
+                // If video is near the end, loop it smoothly
+                if (videoElement.currentTime >= videoElement.duration - 0.5) {
+                    // For seamless loop
+                    videoElement.currentTime = 0;
+                }
+            });
+
+            // Initialize with the selected video
+            updateVideoDisplay();
+
+            // Set initial volume from slider (increased to 0.7)
+            videoElement.volume = volumeSlider.value;
+
+            // Set initial mute button state
+            muteButton.textContent = "🔊";
         });
-
-        // Initialize with the selected video
-        updateVideoDisplay();
-
-        // Set initial volume from slider (increased to 0.7)
-        videoElement.volume = volumeSlider.value;
-
-        // Set initial mute button state
-        muteButton.textContent = "🔊";
     </script>
 </body>
 
