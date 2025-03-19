@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="gallery.css">
     <style>
-        /* Cross-browser compatible styles */
+        /* Video thumbnails - Chrome fix */
         .video-gallery {
             display: flex;
             flex-wrap: wrap;
@@ -39,26 +39,24 @@
             color: inherit;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
-            /* Remove tap highlight on mobile */
         }
 
         .video-thumbnail {
             position: relative;
-            overflow: hidden;
-            height: 0;
-            padding-bottom: 56.25%;
-            /* 16:9 aspect ratio */
+            width: 100%;
+            height: 168px;
+            /* Fixed height instead of padding-based sizing */
             background: #000;
+            overflow: hidden;
         }
 
-        .video-thumbnail img {
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* Use background-image instead of img tags for thumbnails */
+        .video-thumbnail-image {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            display: block;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
         .video-description {
@@ -273,7 +271,9 @@
                     <a href="gallery.html?video=0" class="video-link"
                         aria-label="Chinese town at night with curved roofs and red lanterns">
                         <div class="video-thumbnail">
-                            <img src="Ancient China.mp4" alt="Traditional Chinese town at night">
+                            <!-- Using div with background instead of img for Chrome compatibility -->
+                            <div class="video-thumbnail-image"
+                                style="background-image: url('chinese-town-thumbnail.jpg');"></div>
                         </div>
                         <div class="video-description">
                             <p class="truncate-text">A traditional Chinese town at night, featuring multi-tiered
@@ -289,7 +289,9 @@
                     <a href="gallery.html?video=1" class="video-link"
                         aria-label="Ancient Egyptian pyramid in the desert">
                         <div class="video-thumbnail">
-                            <img src="Ancient Egypt.mp4" alt="Egyptian pyramid in desert">
+                            <!-- Using div with background instead of img for Chrome compatibility -->
+                            <div class="video-thumbnail-image"
+                                style="background-image: url('egyptian-pyramid-thumbnail.jpg');"></div>
                         </div>
                         <div class="video-description">
                             <p class="truncate-text">An ancient Egyptian pyramid rises majestically from the desert
@@ -305,7 +307,9 @@
                     <a href="gallery.html?video=2" class="video-link"
                         aria-label="Ancient Greek harbor with ships and temple">
                         <div class="video-thumbnail">
-                            <img src="Ancient Greece.mp4" alt="Ancient Greek harbor scene">
+                            <!-- Using div with background instead of img for Chrome compatibility -->
+                            <div class="video-thumbnail-image"
+                                style="background-image: url('greek-harbor-thumbnail.jpg');"></div>
                         </div>
                         <div class="video-description">
                             <p class="truncate-text">A reconstructed ancient Greek harbor featuring ornate wooden ships
@@ -379,6 +383,54 @@
 
             // Start random flashes after initial synchronous flash
             setTimeout(randomFlash, 300);
+        }
+
+        // Function to extract thumbnails from video files
+        function createThumbnails() {
+            // Alternative method to display video thumbnails if you don't have static images
+            const videoItems = document.querySelectorAll('.video-item');
+
+            videoItems.forEach((item, index) => {
+                const videoSources = [
+                    "Ancient China.mp4",
+                    "Ancient Egypt.mp4",
+                    "Ancient Greece.mp4"
+                ];
+
+                // Create a temporary video element to get a thumbnail
+                if (index < videoSources.length) {
+                    const tempVideo = document.createElement('video');
+                    tempVideo.src = videoSources[index];
+
+                    // When video metadata is loaded, we can take a snapshot
+                    tempVideo.addEventListener('loadeddata', function () {
+                        try {
+                            // Create a canvas element to capture the frame
+                            const canvas = document.createElement('canvas');
+                            canvas.width = 300;
+                            canvas.height = 168;
+
+                            // Draw the current frame to the canvas
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+
+                            // Convert the canvas to a data URL
+                            const dataURL = canvas.toDataURL('image/jpeg');
+
+                            // Apply the data URL as a background image
+                            const thumbnailImage = item.querySelector('.video-thumbnail-image');
+                            if (thumbnailImage) {
+                                thumbnailImage.style.backgroundImage = `url(${dataURL})`;
+                            }
+                        } catch (e) {
+                            console.error("Could not create thumbnail:", e);
+                        }
+                    });
+
+                    // Set a small currentTime to get a frame from the beginning of the video
+                    tempVideo.currentTime = 1;
+                }
+            });
         }
 
         document.getElementById('generate-btn').addEventListener('click', function () {
@@ -462,6 +514,12 @@
                 });
             });
         }
+
+        // Try to load video thumbnails after page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            // Attempt to generate thumbnails from videos
+            createThumbnails();
+        });
     </script>
 </body>
 
